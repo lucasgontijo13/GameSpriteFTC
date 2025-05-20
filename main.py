@@ -3,7 +3,7 @@ import os
 import math
 
 # Inicialização do Pygame
-def init_pygame(width=800, height=600):
+def init_pygame(width=600, height=350):
     pygame.init()
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("AFD - Animação Personagem")
@@ -96,6 +96,12 @@ crouch_walk_speed = 0.8
 # Função principal
 def main():
     screen, clock = init_pygame()
+
+    # Carregar imagem de fundo
+    background_path = os.path.join(base, 'Mapa', 'mapa2.jpg')
+    background_image = pygame.image.load(background_path).convert()
+    background_image = pygame.transform.scale(background_image, screen.get_size())
+
     # Carregar frames de cada estado
     frames = {
         'idle':             load_frames(stand_folder,         'stand',     6),
@@ -108,8 +114,8 @@ def main():
         'crouch_left':      load_frames(crouch_left_folder,   'crouch',    2),
         'crouch_walk':      load_frames(crouch_walk_folder,   'crouchWalk',6),
         'crouch_walk_left': load_frames(crouch_walk_left,     'crouchWalk',6),
-        'jump': load_frames(jump_r_folder, 'jump', 4),
-        'jump_left': load_frames(jump_l_folder, 'jump', 4),
+        'jump':             load_frames(jump_r_folder,        'jump',      4),
+        'jump_left':        load_frames(jump_l_folder,        'jump',      4),
     }
 
     frame_rate = 10
@@ -117,20 +123,19 @@ def main():
     frame_index = 0
     tick = 0
     x_pos = screen.get_width() // 2
-    y_pos = screen.get_height() // 2 + 100
+    y_pos = screen.get_height() - 50
     walk_speed = 1.5
     run_speed = 3.5
-    running = True
     jump_height = 200
     jump_duration = 40  # frames
-
     jump_timer = 0
+    running = True
 
     while running:
         pygame.event.pump()
         keys = pygame.key.get_pressed()
 
-        # 1) Captura de entrada (prioritário: SPACE, depois S combos, SHIFT, A/D)
+        # Entrada do teclado
         entrada = ''
         if estado_atual not in ('jump', 'jump_left'):
             shift = keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
@@ -152,28 +157,26 @@ def main():
             elif keys[pygame.K_d]:
                 entrada = 'D'
 
-        # 2) Atualiza estado e reseta animação se mudou
+        # Atualiza estado
         prev = estado_atual
         estado_atual = AFD[estado_atual].get(entrada, 'idle')
         if estado_atual != prev:
             frame_index = 0
             tick = 0
 
-        # 3) Atualiza índice de frame (animação)
+        # Atualiza frame da animação
         if tick % frame_rate == 0:
             if estado_atual in ('crouch', 'crouch_left'):
                 frame_index = min(frame_index + 1, len(frames[estado_atual]) - 1)
             elif estado_atual in ('jump', 'jump_left'):
-                # a animação de pulo é guiada por jump_timer, mas ainda precisa setar frame_index
                 progress = 1 - (jump_timer / jump_duration)
                 frame_index = min(int(progress * len(frames[estado_atual])), len(frames[estado_atual]) - 1)
             else:
                 frame_index = (frame_index + 1) % len(frames[estado_atual])
 
-        # PREPARA jump_offset
         jump_offset = 0
 
-        # ─── Movimento no solo ───
+        # Movimento
         if estado_atual == 'walk_right':
             x_pos += walk_speed
         elif estado_atual == 'walk_left':
@@ -187,52 +190,45 @@ def main():
         elif estado_atual == 'crouch_walk_left':
             x_pos -= crouch_walk_speed
 
-        # ─── Física do salto ───
+        # Física do pulo
         if estado_atual in ('jump', 'jump_left'):
             if jump_timer > 0:
                 progress = 1 - (jump_timer / jump_duration)
                 jump_offset = -math.sin(progress * math.pi) * jump_height
                 jump_timer -= 1
             else:
-                # fim do salto, volta ao idle correspondente
                 estado_atual = 'idle' if estado_atual == 'jump' else 'idle_left'
                 frame_index = 0
                 tick = 0
 
-        # ─── Movimento horizontal no ar ───
+        # Movimento no ar
         if estado_atual in ('jump', 'jump_left'):
             shift = keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
-            # correr no ar
             if shift and keys[pygame.K_a]:
                 x_pos -= run_speed
             elif shift and keys[pygame.K_d]:
                 x_pos += run_speed
-            # andar no ar
             elif keys[pygame.K_a]:
                 x_pos -= walk_speed
             elif keys[pygame.K_d]:
                 x_pos += walk_speed
 
-        # ─── Troca sprite de salto no ar se inverter direção ───
+        # Inverter sprite no ar
         if estado_atual in ('jump', 'jump_left'):
             if keys[pygame.K_a] and estado_atual == 'jump':
                 estado_atual = 'jump_left'
-            # deixa frame_index como está, só inverte o lado
             elif keys[pygame.K_d] and estado_atual == 'jump_left':
                 estado_atual = 'jump'
-            # idem, continua no frame atual
 
-        # Clamp em X
         x_pos = max(0, min(x_pos, screen.get_width()))
 
-        # Desenho
+        # ─── DESENHO ───
+        screen.blit(background_image, (0, 0))  # fundo do jogo
         frame = frames[estado_atual][frame_index]
         rect = frame.get_rect(midbottom=(x_pos, y_pos + jump_offset))
-        screen.fill((30, 30, 30))
         screen.blit(frame, rect)
         pygame.display.flip()
 
-        # Incrementa tick e controla FPS
         tick += 1
         clock.tick(60)
 
