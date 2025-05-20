@@ -1,5 +1,6 @@
 import pygame
 import os
+import math
 
 # Inicialização do Pygame
 def init_pygame(width=800, height=600):
@@ -44,40 +45,48 @@ crouch_folder        = os.path.join(base, 'Sprite', 'crouch')
 crouch_left_folder   = os.path.join(crouch_folder, 'espelhadas')
 crouch_walk_folder   = os.path.join(base, 'Sprite', 'crouchWalk')
 crouch_walk_left     = os.path.join(crouch_walk_folder, 'espelhadas')
+jump_r_folder = os.path.join(base, 'Sprite', 'jump')
+jump_l_folder = os.path.join(jump_r_folder, 'espelhadas')
 
 # Definição do autômato (AFD) com transições de crouch e crouch_walk
 AFD = {
     'idle': {
-        'A': 'walk_left', 'D': 'walk_right', 'SHIFT+A': 'run_left', 'SHIFT+D': 'run_right',
-        'S': 'crouch', 'S+A': 'crouch_walk_left', 'S+D': 'crouch_walk', '': 'idle'
+    'A': 'walk_left', 'D': 'walk_right', 'SHIFT+A': 'run_left', 'SHIFT+D': 'run_right',
+    'S': 'crouch', 'S+A': 'crouch_walk_left', 'S+D': 'crouch_walk', 'SPACE': 'jump', '': 'idle'
     },
     'idle_left': {
         'A': 'walk_left', 'D': 'walk_right', 'SHIFT+A': 'run_left', 'SHIFT+D': 'run_right',
-        'S': 'crouch_left', 'S+A': 'crouch_walk_left', 'S+D': 'crouch_walk', '': 'idle_left'
+        'S': 'crouch_left', 'S+A': 'crouch_walk_left', 'S+D': 'crouch_walk', 'SPACE': 'jump_left', '': 'idle_left'
+    },
+    'jump': {
+        '': 'jump'
+    },
+    'jump_left': {
+        '': 'jump_left'
     },
     'walk_left': {
-        'A': 'walk_left', 'D': 'walk_right', 'SHIFT+A': 'run_left', 'S': 'crouch_left', '': 'idle_left'
+        'A': 'walk_left', 'D': 'walk_right', 'SHIFT+A': 'run_left', 'S': 'crouch_left', '': 'idle_left','SPACE': 'jump_left',
     },
     'walk_right': {
-        'D': 'walk_right', 'A': 'walk_left', 'SHIFT+D': 'run_right', 'S': 'crouch', '': 'idle'
+        'D': 'walk_right', 'A': 'walk_left', 'SHIFT+D': 'run_right', 'S': 'crouch', '': 'idle','SPACE': 'jump',
     },
     'run_left': {
-        'SHIFT+A': 'run_left', 'A': 'walk_left', 'D': 'walk_right', 'S': 'crouch_left', '': 'idle_left'
+        'SHIFT+A': 'run_left', 'A': 'walk_left', 'D': 'walk_right', 'S': 'crouch_left', '': 'idle_left','SPACE': 'jump_left',
     },
     'run_right': {
-        'SHIFT+D': 'run_right', 'D': 'walk_right', 'A': 'walk_left', 'S': 'crouch', '': 'idle'
+        'SHIFT+D': 'run_right', 'D': 'walk_right', 'A': 'walk_left', 'S': 'crouch', '': 'idle','SPACE': 'jump',
     },
     'crouch': {
-        'S': 'crouch', 'S+A': 'crouch_walk_left', 'S+D': 'crouch_walk', '': 'idle'
+        'S': 'crouch', 'S+A': 'crouch_walk_left', 'S+D': 'crouch_walk', '': 'idle', 'SPACE': 'jump',
     },
     'crouch_left': {
-        'S': 'crouch_left', 'S+A': 'crouch_walk_left', 'S+D': 'crouch_walk', '': 'idle_left'
+        'S': 'crouch_left', 'S+A': 'crouch_walk_left', 'S+D': 'crouch_walk', '': 'idle_left' ,'SPACE': 'jump_left',
     },
     'crouch_walk': {
-        'S+D': 'crouch_walk', 'S+A': 'crouch_walk_left', 'S': 'crouch', '': 'crouch'
+        'S+D': 'crouch_walk', 'S+A': 'crouch_walk_left', 'S': 'crouch', '': 'crouch', 'SPACE': 'jump',
     },
     'crouch_walk_left': {
-        'S+A': 'crouch_walk_left', 'S+D': 'crouch_walk', 'S': 'crouch_left', '': 'crouch_left'
+        'S+A': 'crouch_walk_left', 'S+D': 'crouch_walk', 'S': 'crouch_left', '': 'crouch_left','SPACE': 'jump_left',
     }
 }
 
@@ -98,7 +107,9 @@ def main():
         'crouch':           load_frames(crouch_folder,        'crouch',    2),
         'crouch_left':      load_frames(crouch_left_folder,   'crouch',    2),
         'crouch_walk':      load_frames(crouch_walk_folder,   'crouchWalk',6),
-        'crouch_walk_left': load_frames(crouch_walk_left,     'crouchWalk',6)
+        'crouch_walk_left': load_frames(crouch_walk_left,     'crouchWalk',6),
+        'jump': load_frames(jump_r_folder, 'jump', 4),
+        'jump_left': load_frames(jump_l_folder, 'jump', 4),
     }
 
     frame_rate = 10
@@ -110,53 +121,118 @@ def main():
     walk_speed = 1.5
     run_speed = 3.5
     running = True
+    jump_height = 200
+    jump_duration = 40  # frames
+
+    jump_timer = 0
 
     while running:
         pygame.event.pump()
         keys = pygame.key.get_pressed()
+
+        # 1) Captura de entrada (prioritário: SPACE, depois S combos, SHIFT, A/D)
+        entrada = ''
+        if estado_atual not in ('jump', 'jump_left'):
+            shift = keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
+            if keys[pygame.K_SPACE]:
+                entrada = 'SPACE'
+                jump_timer = jump_duration
+            elif keys[pygame.K_s] and keys[pygame.K_a]:
+                entrada = 'S+A'
+            elif keys[pygame.K_s] and keys[pygame.K_d]:
+                entrada = 'S+D'
+            elif keys[pygame.K_s]:
+                entrada = 'S'
+            elif shift and keys[pygame.K_a]:
+                entrada = 'SHIFT+A'
+            elif shift and keys[pygame.K_d]:
+                entrada = 'SHIFT+D'
+            elif keys[pygame.K_a]:
+                entrada = 'A'
+            elif keys[pygame.K_d]:
+                entrada = 'D'
+
+        # 2) Atualiza estado e reseta animação se mudou
         prev = estado_atual
-
-        # Captura de entrada com combos prioritários
-        shift = keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
-        if keys[pygame.K_s] and keys[pygame.K_a]: entrada = 'S+A'
-        elif keys[pygame.K_s] and keys[pygame.K_d]: entrada = 'S+D'
-        elif shift and keys[pygame.K_a]: entrada = 'SHIFT+A'
-        elif shift and keys[pygame.K_d]: entrada = 'SHIFT+D'
-        elif keys[pygame.K_s]: entrada = 'S'
-        elif keys[pygame.K_a]: entrada = 'A'
-        elif keys[pygame.K_d]: entrada = 'D'
-        else: entrada = ''
-
-        # Atualiza estado
         estado_atual = AFD[estado_atual].get(entrada, 'idle')
         if estado_atual != prev:
             frame_index = 0
             tick = 0
 
-        # Atualiza frame (crouch pausa no último)
+        # 3) Atualiza índice de frame (animação)
         if tick % frame_rate == 0:
             if estado_atual in ('crouch', 'crouch_left'):
                 frame_index = min(frame_index + 1, len(frames[estado_atual]) - 1)
+            elif estado_atual in ('jump', 'jump_left'):
+                # a animação de pulo é guiada por jump_timer, mas ainda precisa setar frame_index
+                progress = 1 - (jump_timer / jump_duration)
+                frame_index = min(int(progress * len(frames[estado_atual])), len(frames[estado_atual]) - 1)
             else:
                 frame_index = (frame_index + 1) % len(frames[estado_atual])
 
-        # Movimento
-        if estado_atual == 'walk_right': x_pos += walk_speed
-        elif estado_atual == 'walk_left': x_pos -= walk_speed
-        elif estado_atual == 'run_right': x_pos += run_speed
-        elif estado_atual == 'run_left': x_pos -= run_speed
-        elif estado_atual == 'crouch_walk': x_pos += crouch_walk_speed
-        elif estado_atual == 'crouch_walk_left': x_pos -= crouch_walk_speed
+        # PREPARA jump_offset
+        jump_offset = 0
 
+        # ─── Movimento no solo ───
+        if estado_atual == 'walk_right':
+            x_pos += walk_speed
+        elif estado_atual == 'walk_left':
+            x_pos -= walk_speed
+        elif estado_atual == 'run_right':
+            x_pos += run_speed
+        elif estado_atual == 'run_left':
+            x_pos -= run_speed
+        elif estado_atual == 'crouch_walk':
+            x_pos += crouch_walk_speed
+        elif estado_atual == 'crouch_walk_left':
+            x_pos -= crouch_walk_speed
+
+        # ─── Física do salto ───
+        if estado_atual in ('jump', 'jump_left'):
+            if jump_timer > 0:
+                progress = 1 - (jump_timer / jump_duration)
+                jump_offset = -math.sin(progress * math.pi) * jump_height
+                jump_timer -= 1
+            else:
+                # fim do salto, volta ao idle correspondente
+                estado_atual = 'idle' if estado_atual == 'jump' else 'idle_left'
+                frame_index = 0
+                tick = 0
+
+        # ─── Movimento horizontal no ar ───
+        if estado_atual in ('jump', 'jump_left'):
+            shift = keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
+            # correr no ar
+            if shift and keys[pygame.K_a]:
+                x_pos -= run_speed
+            elif shift and keys[pygame.K_d]:
+                x_pos += run_speed
+            # andar no ar
+            elif keys[pygame.K_a]:
+                x_pos -= walk_speed
+            elif keys[pygame.K_d]:
+                x_pos += walk_speed
+
+        # ─── Troca sprite de salto no ar se inverter direção ───
+        if estado_atual in ('jump', 'jump_left'):
+            if keys[pygame.K_a] and estado_atual == 'jump':
+                estado_atual = 'jump_left'
+            # deixa frame_index como está, só inverte o lado
+            elif keys[pygame.K_d] and estado_atual == 'jump_left':
+                estado_atual = 'jump'
+            # idem, continua no frame atual
+
+        # Clamp em X
         x_pos = max(0, min(x_pos, screen.get_width()))
 
         # Desenho
         frame = frames[estado_atual][frame_index]
-        rect = frame.get_rect(midbottom=(x_pos, y_pos))
+        rect = frame.get_rect(midbottom=(x_pos, y_pos + jump_offset))
         screen.fill((30, 30, 30))
         screen.blit(frame, rect)
         pygame.display.flip()
 
+        # Incrementa tick e controla FPS
         tick += 1
         clock.tick(60)
 
