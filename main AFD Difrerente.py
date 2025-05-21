@@ -17,6 +17,13 @@ class State(Enum):
     CROUCH_WALK_LEFT = auto()
     JUMP = auto()
     JUMP_LEFT = auto()
+    RAIKIRI = auto()
+    RAIKIRI_LEFT = auto()
+    ATTACK = auto()
+    ATTACK_LEFT = auto()
+    ATTACK_CROUCH = auto()
+    ATTACK_CROUCH_LEFT = auto()
+
 
 # Símbolos de entrada (None equivale a nenhuma tecla)
 Symbol = str
@@ -32,7 +39,11 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.IDLE,      'S+A'): State.CROUCH_WALK_LEFT,
     (State.IDLE,      'S+D'): State.CROUCH_WALK,
     (State.IDLE,      'SPACE'): State.JUMP,
+    (State.IDLE,      'R+T'): State.RAIKIRI,
+    (State.IDLE,        'Q'): State.ATTACK,
     (State.IDLE,      None): State.IDLE,
+
+
 
     (State.IDLE_LEFT, 'A'): State.WALK_LEFT,
     (State.IDLE_LEFT, 'D'): State.WALK_RIGHT,
@@ -42,7 +53,9 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.IDLE_LEFT, 'S+A'): State.CROUCH_WALK_LEFT,
     (State.IDLE_LEFT, 'S+D'): State.CROUCH_WALK,
     (State.IDLE_LEFT, 'SPACE'): State.JUMP_LEFT,
+    (State.IDLE_LEFT, 'R+T'): State.RAIKIRI_LEFT,
     (State.IDLE_LEFT, None): State.IDLE_LEFT,
+    (State.IDLE_LEFT,   'Q'): State.ATTACK_LEFT,
 
     (State.WALK_RIGHT, 'D'): State.WALK_RIGHT,
     (State.WALK_RIGHT, 'A'): State.WALK_LEFT,
@@ -50,6 +63,8 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.WALK_RIGHT, 'S'): State.CROUCH,
     (State.WALK_RIGHT, 'SPACE'): State.JUMP,
     (State.WALK_RIGHT, None): State.IDLE,
+    (State.WALK_RIGHT, 'Q'): State.ATTACK,
+    (State.WALK_RIGHT, 'R+T'): State.WALK_RIGHT,
 
     (State.WALK_LEFT,  'A'): State.WALK_LEFT,
     (State.WALK_LEFT,  'D'): State.WALK_RIGHT,
@@ -57,53 +72,83 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.WALK_LEFT,  'S'): State.CROUCH_LEFT,
     (State.WALK_LEFT,  'SPACE'): State.JUMP_LEFT,
     (State.WALK_LEFT,  None): State.IDLE_LEFT,
+    (State.WALK_LEFT, 'Q'): State.ATTACK_LEFT,
+    (State.WALK_LEFT, 'R+T'): State.WALK_LEFT,
 
     (State.RUN_RIGHT,  'SHIFT+D'): State.RUN_RIGHT,
+    (State.RUN_RIGHT,  'SHIFT+A'): State.RUN_LEFT,
     (State.RUN_RIGHT,  'D'): State.WALK_RIGHT,
     (State.RUN_RIGHT,  'A'): State.WALK_LEFT,
     (State.RUN_RIGHT,  'S'): State.CROUCH,
     (State.RUN_RIGHT,  'SPACE'): State.JUMP,
     (State.RUN_RIGHT,  None): State.IDLE,
+    (State.RUN_RIGHT, 'Q'): State.RUN_RIGHT,
+    (State.RUN_RIGHT, 'R+T'): State.RUN_RIGHT,
+
 
     (State.RUN_LEFT,   'SHIFT+A'): State.RUN_LEFT,
+    (State.RUN_LEFT,  'SHIFT+D'): State.RUN_RIGHT,
     (State.RUN_LEFT,   'A'): State.WALK_LEFT,
     (State.RUN_LEFT,   'D'): State.WALK_RIGHT,
     (State.RUN_LEFT,   'S'): State.CROUCH_LEFT,
     (State.RUN_LEFT,   'SPACE'): State.JUMP_LEFT,
     (State.RUN_LEFT,   None): State.IDLE_LEFT,
+    (State.RUN_LEFT, 'Q'): State.RUN_LEFT,
+    (State.RUN_LEFT, 'R+T'): State.RUN_LEFT,
+
 
     (State.CROUCH,     'S'): State.CROUCH,
     (State.CROUCH,     'S+A'): State.CROUCH_WALK_LEFT,
     (State.CROUCH,     'S+D'): State.CROUCH_WALK,
     (State.CROUCH,     'SPACE'): State.JUMP,
     (State.CROUCH,     None): State.IDLE,
+    (State.CROUCH,     'R+T'): State.CROUCH,
+    (State.CROUCH,     'Q'): State.ATTACK_CROUCH,
 
     (State.CROUCH_LEFT,'S'): State.CROUCH_LEFT,
     (State.CROUCH_LEFT,'S+A'): State.CROUCH_WALK_LEFT,
     (State.CROUCH_LEFT,'S+D'): State.CROUCH_WALK,
     (State.CROUCH_LEFT,'SPACE'): State.JUMP_LEFT,
     (State.CROUCH_LEFT, None): State.IDLE_LEFT,
+    (State.CROUCH_LEFT, 'R+T'): State.CROUCH_LEFT,
+    (State.CROUCH_LEFT,'Q'): State.ATTACK_CROUCH_LEFT,
 
     (State.CROUCH_WALK,'S+D'): State.CROUCH_WALK,
     (State.CROUCH_WALK,'S+A'): State.CROUCH_WALK_LEFT,
     (State.CROUCH_WALK,'S'): State.CROUCH,
     (State.CROUCH_WALK,'SPACE'): State.JUMP,
     (State.CROUCH_WALK, None): State.CROUCH,
+    (State.CROUCH_WALK, 'R+T'): State.CROUCH_WALK,
+    (State.CROUCH_WALK, 'Q'): State.ATTACK_CROUCH,
 
     (State.CROUCH_WALK_LEFT,'S+A'): State.CROUCH_WALK_LEFT,
     (State.CROUCH_WALK_LEFT,'S+D'): State.CROUCH_WALK,
     (State.CROUCH_WALK_LEFT,'S'): State.CROUCH_LEFT,
     (State.CROUCH_WALK_LEFT,'SPACE'): State.JUMP_LEFT,
     (State.CROUCH_WALK_LEFT, None): State.CROUCH_LEFT,
+    (State.CROUCH_WALK_LEFT, 'R+T'): State.CROUCH_WALK_LEFT,
+    (State.CROUCH_WALK_LEFT, 'Q'): State.ATTACK_CROUCH_LEFT,
 
-    # Durante o pulo, mantemos o estado (permitiremos movimentos manuais)
-    (State.JUMP,       None): State.JUMP,
-    (State.JUMP_LEFT,  None): State.JUMP_LEFT,
+    # Jump and Raikiri preserve
+    (State.JUMP, None): State.JUMP,
+    (State.JUMP_LEFT, None): State.JUMP_LEFT,
+    (State.RAIKIRI, None): State.RAIKIRI,
+    (State.RAIKIRI_LEFT, None): State.RAIKIRI_LEFT,
+
+    # Attack preserve
+    (State.ATTACK, None): State.ATTACK,
+    (State.ATTACK_LEFT, None): State.ATTACK_LEFT,
+    (State.ATTACK_CROUCH, None): State.ATTACK_CROUCH,
+    (State.ATTACK_CROUCH_LEFT, None): State.ATTACK_CROUCH_LEFT,
+
+
+
+
 }
 
-def init_pygame(width=600, height=350):
+def init_pygame(width=1500, height=800):
     pygame.init()
-    screen = pygame.display.set_mode((width, height))
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("AFD - Animação Personagem")
     clock = pygame.time.Clock()
     return screen, clock
@@ -113,7 +158,7 @@ def load_image(path):
     return pygame.image.load(path).convert_alpha()
 
 # Carrega sequência de frames a partir de pasta, prefixo e quantidade
-def load_frames(folder, prefix, count):
+def load_frames(folder, prefix, count, scale=1.0):
     frames = []
     raw = []
     max_w = max_h = 0
@@ -128,8 +173,13 @@ def load_frames(folder, prefix, count):
         dest = rect.copy()
         dest.midbottom = (max_w // 2, max_h)
         surf.blit(img, dest.topleft, rect)
+        # Escala aplicada aqui
+        if scale != 1.0:
+            new_size = (int(surf.get_width() * scale), int(surf.get_height() * scale))
+            surf = pygame.transform.scale(surf, new_size)
         frames.append(surf)
     return frames
+
 
 # Diretórios de sprites
 base = os.path.dirname(__file__)
@@ -145,34 +195,49 @@ crouch_walk_folder = os.path.join(base, 'Sprite', 'crouchWalk')
 crouch_walk_left   = os.path.join(crouch_walk_folder, 'espelhadas')
 jump_r_folder      = os.path.join(base, 'Sprite', 'jump')
 jump_l_folder      = os.path.join(jump_r_folder, 'espelhadas')
+raikiri_r_folder = os.path.join(base, 'Sprite', 'raikiri')
+raikiri_l_folder = os.path.join(raikiri_r_folder, 'espelhadas')
+attack_r_folder    = os.path.join(base, 'Sprite', 'attack')
+attack_l_folder    = os.path.join(attack_r_folder, 'espelhadas')
+attack_c_folder    = os.path.join(base, 'Sprite', 'attackCombo')
+attack_c_l_folder  = os.path.join(attack_c_folder, 'espelhadas')
+
+
 
 # Parâmetros
-crouch_walk_speed = 0.8
-walk_speed = 1.5
-run_speed = 3.5
-jump_height = 200
-jump_duration = 40  # frames
-frame_rate = 10      # atualização de frame de animação
+crouch_walk_speed = 1.6
+walk_speed = 3
+run_speed = 10
+jump_height = 400
+jump_duration = 50  # frames
+frame_rates = {'default':8, 'attack':4, 'crouch_attack':4}
 
 # Função principal
 def main():
     screen, clock = init_pygame()
-    background = pygame.image.load(os.path.join(base, 'Mapa', 'mapa2.jpg')).convert()
+    background = pygame.image.load(os.path.join(base, 'Mapa', 'mapa4.jpg')).convert()
     background = pygame.transform.scale(background, screen.get_size())
-
+    scale = 4.0
     frames = {
-        State.IDLE:             load_frames(stand_folder, 'stand', 6),
-        State.IDLE_LEFT:        load_frames(stand_left_folder, 'stand', 6),
-        State.WALK_RIGHT:       load_frames(walk_r_folder, 'walk', 6),
-        State.WALK_LEFT:        load_frames(walk_l_folder, 'walk', 6),
-        State.RUN_RIGHT:        load_frames(run_r_folder, 'run', 6),
-        State.RUN_LEFT:         load_frames(run_l_folder, 'run', 6),
-        State.CROUCH:           load_frames(crouch_folder, 'crouch', 2),
-        State.CROUCH_LEFT:      load_frames(crouch_left_folder, 'crouch', 2),
-        State.CROUCH_WALK:      load_frames(crouch_walk_folder, 'crouchWalk', 6),
-        State.CROUCH_WALK_LEFT: load_frames(crouch_walk_left, 'crouchWalk', 6),
-        State.JUMP:             load_frames(jump_r_folder, 'jump', 4),
-        State.JUMP_LEFT:        load_frames(jump_l_folder, 'jump', 4),
+        State.IDLE: load_frames(stand_folder, 'stand', 6, scale),
+        State.IDLE_LEFT: load_frames(stand_left_folder, 'stand', 6, scale),
+        State.WALK_RIGHT: load_frames(walk_r_folder, 'walk', 6, scale),
+        State.WALK_LEFT: load_frames(walk_l_folder, 'walk', 6, scale),
+        State.RUN_RIGHT: load_frames(run_r_folder, 'run', 6, scale),
+        State.RUN_LEFT: load_frames(run_l_folder, 'run', 6, scale),
+        State.CROUCH: load_frames(crouch_folder, 'crouch', 2, scale),
+        State.CROUCH_LEFT: load_frames(crouch_left_folder, 'crouch', 2, scale),
+        State.CROUCH_WALK: load_frames(crouch_walk_folder, 'crouchWalk', 6, scale),
+        State.CROUCH_WALK_LEFT: load_frames(crouch_walk_left, 'crouchWalk', 6, scale),
+        State.JUMP: load_frames(jump_r_folder, 'jump', 4, scale),
+        State.JUMP_LEFT: load_frames(jump_l_folder, 'jump', 4, scale),
+        State.RAIKIRI: load_frames(raikiri_r_folder, 'raikiri', 26, scale),
+        State.RAIKIRI_LEFT: load_frames(raikiri_l_folder, 'raikiri', 26, scale),
+        State.ATTACK: load_frames(attack_r_folder, 'attack1', 13, scale),
+        State.ATTACK_LEFT: load_frames(attack_l_folder, 'attack1', 13, scale),
+        State.ATTACK_CROUCH: load_frames(attack_c_folder,'attack(crouch)', 5, scale),
+        State.ATTACK_CROUCH_LEFT: load_frames(attack_c_l_folder, 'attack(crouch)', 5, scale),
+
     }
 
     state = State.IDLE
@@ -190,17 +255,29 @@ def main():
         # Determina símbolo de entrada
         entrada = None
         shift = keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
-        if state not in (State.JUMP, State.JUMP_LEFT):
+
+        if state not in (State.JUMP, State.JUMP_LEFT, State.ATTACK, State.ATTACK_LEFT,
+                         State.ATTACK_CROUCH, State.ATTACK_CROUCH_LEFT):
             if keys[pygame.K_SPACE]:
-                entrada = 'SPACE'
-                jump_timer = jump_duration
-            elif keys[pygame.K_s] and keys[pygame.K_a]: entrada = 'S+A'
-            elif keys[pygame.K_s] and keys[pygame.K_d]: entrada = 'S+D'
-            elif keys[pygame.K_s]: entrada = 'S'
-            elif shift and keys[pygame.K_a]: entrada = 'SHIFT+A'
-            elif shift and keys[pygame.K_d]: entrada = 'SHIFT+D'
-            elif keys[pygame.K_a]: entrada = 'A'
-            elif keys[pygame.K_d]: entrada = 'D'
+                entrada, jump_timer = 'SPACE', jump_duration
+            elif keys[pygame.K_q]:
+                entrada = 'Q'
+            elif keys[pygame.K_r] and keys[pygame.K_t]:
+                entrada = 'R+T'
+            elif keys[pygame.K_s] and keys[pygame.K_a]:
+                entrada = 'S+A'
+            elif keys[pygame.K_s] and keys[pygame.K_d]:
+                entrada = 'S+D'
+            elif keys[pygame.K_s]:
+                entrada = 'S'
+            elif shift and keys[pygame.K_a]:
+                entrada = 'SHIFT+A'
+            elif shift and keys[pygame.K_d]:
+                entrada = 'SHIFT+D'
+            elif keys[pygame.K_a]:
+                entrada = 'A'
+            elif keys[pygame.K_d]:
+                entrada = 'D'
 
         # Atualiza estado (δ)
         prev = state
@@ -211,14 +288,43 @@ def main():
             tick = 0
 
         # Atualiza frame
-        if tick % frame_rate == 0:
+        rate = (
+            frame_rates['attack'] if state in (State.ATTACK, State.ATTACK_LEFT)
+            else frame_rates['crouch_attack'] if state in (State.ATTACK_CROUCH, State.ATTACK_CROUCH_LEFT)
+            else frame_rates['default']
+        )
+        if tick % rate == 0:
             if state in (State.CROUCH, State.CROUCH_LEFT):
                 frame_index = min(frame_index + 1, len(frames[state]) - 1)
-            elif state in (State.JUMP, State.JUMP_LEFT):
-                progress = 1 - (jump_timer / jump_duration)
-                frame_index = min(int(progress * len(frames[state])), len(frames[state]) - 1)
+            elif state in (State.ATTACK, State.ATTACK_LEFT):
+                # avança somente se houver próximo frame, senão retorna a idle
+                if frame_index + 1 < len(frames[state]):
+                    frame_index += 1
+                else:
+                    state = State.IDLE if state == State.ATTACK else State.IDLE_LEFT
+                    frame_index = 0
+                    tick = 0
+            elif state in (State.ATTACK_CROUCH, State.ATTACK_CROUCH_LEFT):
+                # avança somente se houver próximo frame, senão retorna ao crouch
+                if frame_index + 1 < len(frames[state]):
+                    frame_index += 1
+                else:
+                    if state == State.ATTACK_CROUCH:
+                        state = State.CROUCH
+                        frame_index = len(frames[State.CROUCH]) - 1
+                    else:
+                        state = State.CROUCH_LEFT
+                        frame_index = len(frames[State.CROUCH_LEFT]) - 1
+                    tick = 0
             else:
+                # outras animações ciclam normalmente
                 frame_index = (frame_index + 1) % len(frames[state])
+
+        # garantia extra: nunca saia dos limites
+        frame_index = max(0, min(frame_index, len(frames[state]) - 1))
+
+
+
 
         # Física do pulo e movimento
         jump_offset = 0
@@ -244,6 +350,22 @@ def main():
             else:
                 state = State.IDLE if state == State.JUMP else State.IDLE_LEFT
                 frame_index = tick = 0
+        # Raikiri: frames 0–10 parado, 11–25 anda
+        elif state in (State.RAIKIRI, State.RAIKIRI_LEFT):
+            if tick % rate == 0:
+                frame_index += 1
+                if frame_index >= len(frames[state]):
+                    # Final da animação
+                    state = State.IDLE if state == State.RAIKIRI else State.IDLE_LEFT
+                    frame_index = 0
+                    tick = 0
+
+            if frame_index >= 11:  # move nos frames finais
+                raikiri_speed = 3 * walk_speed  # 3x mais rápido que o normal
+                if state == State.RAIKIRI:
+                    x_pos += raikiri_speed
+                else:
+                    x_pos -= raikiri_speed
         else:
             # Movimento no chão
             if state == State.WALK_RIGHT:
