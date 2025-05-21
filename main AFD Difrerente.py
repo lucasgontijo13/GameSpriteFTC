@@ -23,6 +23,10 @@ class State(Enum):
     ATTACK_LEFT = auto()
     ATTACK_CROUCH = auto()
     ATTACK_CROUCH_LEFT = auto()
+    ATTACK_RUN = auto()
+    ATTACK_RUN_LEFT = auto()
+    ATTACK_UP = auto()
+    ATTACK_UP_LEFT = auto()
 
 
 # Símbolos de entrada (None equivale a nenhuma tecla)
@@ -42,6 +46,12 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.IDLE,      'R+T'): State.RAIKIRI,
     (State.IDLE,        'Q'): State.ATTACK,
     (State.IDLE,      None): State.IDLE,
+    (State.IDLE,    'W'): State.ATTACK_UP,
+
+
+
+
+
 
 
 
@@ -56,6 +66,7 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.IDLE_LEFT, 'R+T'): State.RAIKIRI_LEFT,
     (State.IDLE_LEFT, None): State.IDLE_LEFT,
     (State.IDLE_LEFT,   'Q'): State.ATTACK_LEFT,
+    (State.IDLE_LEFT, 'W'): State.ATTACK_UP_LEFT,
 
     (State.WALK_RIGHT, 'D'): State.WALK_RIGHT,
     (State.WALK_RIGHT, 'A'): State.WALK_LEFT,
@@ -65,6 +76,7 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.WALK_RIGHT, None): State.IDLE,
     (State.WALK_RIGHT, 'Q'): State.ATTACK,
     (State.WALK_RIGHT, 'R+T'): State.WALK_RIGHT,
+    (State.WALK_RIGHT, 'W'): State.ATTACK_UP,
 
     (State.WALK_LEFT,  'A'): State.WALK_LEFT,
     (State.WALK_LEFT,  'D'): State.WALK_RIGHT,
@@ -74,6 +86,7 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.WALK_LEFT,  None): State.IDLE_LEFT,
     (State.WALK_LEFT, 'Q'): State.ATTACK_LEFT,
     (State.WALK_LEFT, 'R+T'): State.WALK_LEFT,
+    (State.WALK_LEFT, 'W'): State.ATTACK_UP_LEFT,
 
     (State.RUN_RIGHT,  'SHIFT+D'): State.RUN_RIGHT,
     (State.RUN_RIGHT,  'SHIFT+A'): State.RUN_LEFT,
@@ -82,8 +95,9 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.RUN_RIGHT,  'S'): State.CROUCH,
     (State.RUN_RIGHT,  'SPACE'): State.JUMP,
     (State.RUN_RIGHT,  None): State.IDLE,
-    (State.RUN_RIGHT, 'Q'): State.RUN_RIGHT,
+    (State.RUN_RIGHT, 'Q'): State.ATTACK_RUN,
     (State.RUN_RIGHT, 'R+T'): State.RUN_RIGHT,
+    (State.RUN_RIGHT, 'W'): State.ATTACK_UP,
 
 
     (State.RUN_LEFT,   'SHIFT+A'): State.RUN_LEFT,
@@ -93,8 +107,14 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.RUN_LEFT,   'S'): State.CROUCH_LEFT,
     (State.RUN_LEFT,   'SPACE'): State.JUMP_LEFT,
     (State.RUN_LEFT,   None): State.IDLE_LEFT,
-    (State.RUN_LEFT, 'Q'): State.RUN_LEFT,
+    (State.RUN_LEFT, 'Q'): State.ATTACK_RUN_LEFT,
     (State.RUN_LEFT, 'R+T'): State.RUN_LEFT,
+    (State.RUN_LEFT, 'W'): State.ATTACK_UP_LEFT,
+
+
+
+
+
 
 
     (State.CROUCH,     'S'): State.CROUCH,
@@ -104,6 +124,7 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.CROUCH,     None): State.IDLE,
     (State.CROUCH,     'R+T'): State.CROUCH,
     (State.CROUCH,     'Q'): State.ATTACK_CROUCH,
+    (State.CROUCH, 'W'): State.ATTACK_UP,
 
     (State.CROUCH_LEFT,'S'): State.CROUCH_LEFT,
     (State.CROUCH_LEFT,'S+A'): State.CROUCH_WALK_LEFT,
@@ -112,6 +133,7 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.CROUCH_LEFT, None): State.IDLE_LEFT,
     (State.CROUCH_LEFT, 'R+T'): State.CROUCH_LEFT,
     (State.CROUCH_LEFT,'Q'): State.ATTACK_CROUCH_LEFT,
+    (State.CROUCH_LEFT, 'W'): State.ATTACK_UP_LEFT,
 
     (State.CROUCH_WALK,'S+D'): State.CROUCH_WALK,
     (State.CROUCH_WALK,'S+A'): State.CROUCH_WALK_LEFT,
@@ -120,6 +142,7 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.CROUCH_WALK, None): State.CROUCH,
     (State.CROUCH_WALK, 'R+T'): State.CROUCH_WALK,
     (State.CROUCH_WALK, 'Q'): State.ATTACK_CROUCH,
+    (State.CROUCH_WALK, 'W'): State.ATTACK_UP,
 
     (State.CROUCH_WALK_LEFT,'S+A'): State.CROUCH_WALK_LEFT,
     (State.CROUCH_WALK_LEFT,'S+D'): State.CROUCH_WALK,
@@ -128,6 +151,7 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.CROUCH_WALK_LEFT, None): State.CROUCH_LEFT,
     (State.CROUCH_WALK_LEFT, 'R+T'): State.CROUCH_WALK_LEFT,
     (State.CROUCH_WALK_LEFT, 'Q'): State.ATTACK_CROUCH_LEFT,
+    (State.CROUCH_WALK_LEFT, 'W'): State.ATTACK_UP_LEFT,
 
     # Jump and Raikiri preserve
     (State.JUMP, None): State.JUMP,
@@ -140,7 +164,10 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.ATTACK_LEFT, None): State.ATTACK_LEFT,
     (State.ATTACK_CROUCH, None): State.ATTACK_CROUCH,
     (State.ATTACK_CROUCH_LEFT, None): State.ATTACK_CROUCH_LEFT,
-
+    (State.ATTACK_RUN, None): State.ATTACK_RUN,
+    (State.ATTACK_RUN_LEFT, None): State.ATTACK_RUN_LEFT,
+    (State.ATTACK_UP, None): State.ATTACK_UP,
+    (State.ATTACK_UP_LEFT, None): State.ATTACK_UP_LEFT,
 
 
 
@@ -201,6 +228,10 @@ attack_r_folder    = os.path.join(base, 'Sprite', 'attack')
 attack_l_folder    = os.path.join(attack_r_folder, 'espelhadas')
 attack_c_folder    = os.path.join(base, 'Sprite', 'attackCombo')
 attack_c_l_folder  = os.path.join(attack_c_folder, 'espelhadas')
+attack_run_folder    = os.path.join(base, 'Sprite', 'attackCombo')
+attack_run_l_folder  = os.path.join(attack_run_folder, 'espelhadas')
+attack_up_folder   = os.path.join(base, 'Sprite', 'attackCombo')
+attack_up_l_folder = os.path.join(attack_up_folder, 'espelhadas')
 
 
 
@@ -210,7 +241,13 @@ walk_speed = 3
 run_speed = 10
 jump_height = 400
 jump_duration = 50  # frames
-frame_rates = {'default':8, 'attack':4, 'crouch_attack':4}
+frame_rates = {
+    'default':8,
+    'attack':4,
+    'crouch_attack':4,
+    'run_attack':4,
+    'up_attack':4
+}
 
 # Função principal
 def main():
@@ -237,6 +274,10 @@ def main():
         State.ATTACK_LEFT: load_frames(attack_l_folder, 'attack1', 13, scale),
         State.ATTACK_CROUCH: load_frames(attack_c_folder,'attack(crouch)', 5, scale),
         State.ATTACK_CROUCH_LEFT: load_frames(attack_c_l_folder, 'attack(crouch)', 5, scale),
+        State.ATTACK_RUN: load_frames(attack_run_folder, 'attack(run)', 6, scale),
+        State.ATTACK_RUN_LEFT: load_frames(attack_run_l_folder, 'attack(run)', 6, scale),
+        State.ATTACK_UP: load_frames(attack_up_folder, 'attack(up)', 5, scale),
+        State.ATTACK_UP_LEFT: load_frames(attack_up_l_folder, 'attack(up)', 5, scale),
 
     }
 
@@ -256,11 +297,21 @@ def main():
         entrada = None
         shift = keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
 
-        if state not in (State.JUMP, State.JUMP_LEFT, State.ATTACK, State.ATTACK_LEFT,
-                         State.ATTACK_CROUCH, State.ATTACK_CROUCH_LEFT):
+        if state not in (
+                State.JUMP, State.JUMP_LEFT,
+                State.ATTACK, State.ATTACK_LEFT,
+                State.ATTACK_CROUCH, State.ATTACK_CROUCH_LEFT,
+                State.ATTACK_RUN, State.ATTACK_RUN_LEFT
+        ):
             if keys[pygame.K_SPACE]:
                 entrada, jump_timer = 'SPACE', jump_duration
+            elif keys[pygame.K_w]:
+                entrada = 'W'
             elif keys[pygame.K_q]:
+                entrada = 'Q'
+            elif shift and keys[pygame.K_d] and keys[pygame.K_q]:
+                entrada = 'Q'
+            elif shift and keys[pygame.K_a] and keys[pygame.K_q]:
                 entrada = 'Q'
             elif keys[pygame.K_r] and keys[pygame.K_t]:
                 entrada = 'R+T'
@@ -289,12 +340,28 @@ def main():
 
         # Atualiza frame
         rate = (
-            frame_rates['attack'] if state in (State.ATTACK, State.ATTACK_LEFT)
-            else frame_rates['crouch_attack'] if state in (State.ATTACK_CROUCH, State.ATTACK_CROUCH_LEFT)
-            else frame_rates['default']
+            frame_rates['attack'] if state in (State.ATTACK, State.ATTACK_LEFT) else
+            frame_rates['crouch_attack'] if state in (State.ATTACK_CROUCH, State.ATTACK_CROUCH_LEFT) else
+            frame_rates['run_attack'] if state in (State.ATTACK_RUN, State.ATTACK_RUN_LEFT) else
+            frame_rates['up_attack'] if state in (State.ATTACK_UP, State.ATTACK_UP_LEFT) else
+            frame_rates['default']
         )
         if tick % rate == 0:
-            if state in (State.CROUCH, State.CROUCH_LEFT):
+            if state in (State.ATTACK_RUN, State.ATTACK_RUN_LEFT):
+                if frame_index + 1 < len(frames[state]):
+                    frame_index += 1
+                else:
+                    # ao fim do ataque correndo, volta a correr
+                    state = State.RUN_RIGHT if state == State.ATTACK_RUN else State.RUN_LEFT
+                    frame_index = 0
+                    tick = 0
+            elif state in (State.ATTACK_UP, State.ATTACK_UP_LEFT):
+                if frame_index + 1 < len(frames[state]):
+                    frame_index += 1
+                else:
+                    state = State.IDLE if state == State.ATTACK_UP else State.IDLE_LEFT
+                    frame_index, tick = 0, 0
+            elif state in (State.CROUCH, State.CROUCH_LEFT):
                 frame_index = min(frame_index + 1, len(frames[state]) - 1)
             elif state in (State.ATTACK, State.ATTACK_LEFT):
                 # avança somente se houver próximo frame, senão retorna a idle
@@ -360,7 +427,7 @@ def main():
                     frame_index = 0
                     tick = 0
 
-            if frame_index >= 11:  # move nos frames finais
+            if state in (State.RAIKIRI, State.RAIKIRI_LEFT) and frame_index >= 11:
                 raikiri_speed = 3 * walk_speed  # 3x mais rápido que o normal
                 if state == State.RAIKIRI:
                     x_pos += raikiri_speed
