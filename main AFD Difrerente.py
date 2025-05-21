@@ -27,6 +27,8 @@ class State(Enum):
     ATTACK_RUN_LEFT = auto()
     ATTACK_UP = auto()
     ATTACK_UP_LEFT = auto()
+    SHARINGAN = auto()
+    SHARINGAN_LEFT = auto()
 
 
 # Símbolos de entrada (None equivale a nenhuma tecla)
@@ -47,11 +49,7 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.IDLE,        'Q'): State.ATTACK,
     (State.IDLE,      None): State.IDLE,
     (State.IDLE,    'W'): State.ATTACK_UP,
-
-
-
-
-
+    (State.IDLE,      'O'): State.SHARINGAN,
 
 
 
@@ -67,6 +65,8 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.IDLE_LEFT, None): State.IDLE_LEFT,
     (State.IDLE_LEFT,   'Q'): State.ATTACK_LEFT,
     (State.IDLE_LEFT, 'W'): State.ATTACK_UP_LEFT,
+    (State.IDLE_LEFT, 'O'): State.SHARINGAN_LEFT,
+
 
     (State.WALK_RIGHT, 'D'): State.WALK_RIGHT,
     (State.WALK_RIGHT, 'A'): State.WALK_LEFT,
@@ -168,6 +168,8 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.ATTACK_RUN_LEFT, None): State.ATTACK_RUN_LEFT,
     (State.ATTACK_UP, None): State.ATTACK_UP,
     (State.ATTACK_UP_LEFT, None): State.ATTACK_UP_LEFT,
+    (State.SHARINGAN, None): State.SHARINGAN,
+    (State.SHARINGAN_LEFT, None): State.SHARINGAN_LEFT,
 
 
 
@@ -232,6 +234,8 @@ attack_run_folder    = os.path.join(base, 'Sprite', 'attackCombo')
 attack_run_l_folder  = os.path.join(attack_run_folder, 'espelhadas')
 attack_up_folder   = os.path.join(base, 'Sprite', 'attackCombo')
 attack_up_l_folder = os.path.join(attack_up_folder, 'espelhadas')
+sharingan_r_folder = os.path.join(base, 'Sprite', 'sharingan')
+sharingan_l_folder = os.path.join(sharingan_r_folder, 'espelhadas')
 
 
 
@@ -246,7 +250,8 @@ frame_rates = {
     'attack':4,
     'crouch_attack':4,
     'run_attack':4,
-    'up_attack':4
+    'up_attack':4,
+    'sharingan': 4,
 }
 
 # Função principal
@@ -278,6 +283,8 @@ def main():
         State.ATTACK_RUN_LEFT: load_frames(attack_run_l_folder, 'attack(run)', 6, scale),
         State.ATTACK_UP: load_frames(attack_up_folder, 'attack(up)', 5, scale),
         State.ATTACK_UP_LEFT: load_frames(attack_up_l_folder, 'attack(up)', 5, scale),
+        State.SHARINGAN: load_frames(os.path.join(base, 'Sprite', 'sharingan'), 'sharingan', 21, scale),
+        State.SHARINGAN_LEFT: load_frames(os.path.join(base, 'Sprite', 'sharingan', 'espelhadas'), 'sharingan', 21,scale),
 
     }
 
@@ -307,6 +314,8 @@ def main():
                 entrada, jump_timer = 'SPACE', jump_duration
             elif keys[pygame.K_w]:
                 entrada = 'W'
+            elif keys[pygame.K_o]:
+                entrada = 'O'
             elif keys[pygame.K_q]:
                 entrada = 'Q'
             elif shift and keys[pygame.K_d] and keys[pygame.K_q]:
@@ -344,6 +353,7 @@ def main():
             frame_rates['crouch_attack'] if state in (State.ATTACK_CROUCH, State.ATTACK_CROUCH_LEFT) else
             frame_rates['run_attack'] if state in (State.ATTACK_RUN, State.ATTACK_RUN_LEFT) else
             frame_rates['up_attack'] if state in (State.ATTACK_UP, State.ATTACK_UP_LEFT) else
+            frame_rates['sharingan'] if state in (State.SHARINGAN, State.SHARINGAN_LEFT) else
             frame_rates['default']
         )
         if tick % rate == 0:
@@ -355,6 +365,7 @@ def main():
                     state = State.RUN_RIGHT if state == State.ATTACK_RUN else State.RUN_LEFT
                     frame_index = 0
                     tick = 0
+
             elif state in (State.ATTACK_UP, State.ATTACK_UP_LEFT):
                 if frame_index + 1 < len(frames[state]):
                     frame_index += 1
@@ -371,6 +382,12 @@ def main():
                     state = State.IDLE if state == State.ATTACK else State.IDLE_LEFT
                     frame_index = 0
                     tick = 0
+            elif state in (State.SHARINGAN, State.SHARINGAN_LEFT):
+                if tick % rate == 0:
+                    frame_index += 1
+                    if frame_index >= len(frames[state]):
+                        state = State.IDLE if state == State.SHARINGAN else State.IDLE_LEFT
+                        frame_index = tick = 0
             elif state in (State.ATTACK_CROUCH, State.ATTACK_CROUCH_LEFT):
                 # avança somente se houver próximo frame, senão retorna ao crouch
                 if frame_index + 1 < len(frames[state]):
@@ -427,7 +444,7 @@ def main():
                     frame_index = 0
                     tick = 0
 
-            if state in (State.RAIKIRI, State.RAIKIRI_LEFT) and frame_index >= 11:
+            if frame_index >= 11:  # move nos frames finais
                 raikiri_speed = 3 * walk_speed  # 3x mais rápido que o normal
                 if state == State.RAIKIRI:
                     x_pos += raikiri_speed
