@@ -296,7 +296,7 @@ def main():
         State.ATTACK_UP: load_frames(attack_up_folder, 'attack(up)', 5, scale),
         State.ATTACK_UP_LEFT: load_frames(attack_up_l_folder, 'attack(up)', 5, scale),
         State.SHARINGAN: load_frames(os.path.join(base, 'Sprite', 'sharingan'), 'sharingan', 19, scale),
-        State.SHARINGAN_LEFT: load_frames(os.path.join(base, 'Sprite', 'sharingan', 'espelhadas'), 'sharingan', 21,scale),
+        State.SHARINGAN_LEFT: load_frames(os.path.join(base, 'Sprite', 'sharingan', 'espelhadas'), 'sharingan', 19,scale),
 
     }
 
