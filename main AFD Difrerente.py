@@ -46,10 +46,10 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.IDLE,      'S+D'): State.CROUCH_WALK,
     (State.IDLE,      'SPACE'): State.JUMP,
     (State.IDLE,      'R+T'): State.RAIKIRI,
-    (State.IDLE,        'Q'): State.ATTACK,
+    (State.IDLE,        'H'): State.ATTACK,
     (State.IDLE,      None): State.IDLE,
-    (State.IDLE,    'W'): State.ATTACK_UP,
-    (State.IDLE,      'O'): State.SHARINGAN,
+    (State.IDLE,    'U'): State.ATTACK_UP,
+    (State.IDLE,      'J'): State.SHARINGAN,
 
 
 
@@ -63,9 +63,9 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.IDLE_LEFT, 'SPACE'): State.JUMP_LEFT,
     (State.IDLE_LEFT, 'R+T'): State.RAIKIRI_LEFT,
     (State.IDLE_LEFT, None): State.IDLE_LEFT,
-    (State.IDLE_LEFT,   'Q'): State.ATTACK_LEFT,
-    (State.IDLE_LEFT, 'W'): State.ATTACK_UP_LEFT,
-    (State.IDLE_LEFT, 'O'): State.SHARINGAN_LEFT,
+    (State.IDLE_LEFT,   'H'): State.ATTACK_LEFT,
+    (State.IDLE_LEFT, 'U'): State.ATTACK_UP_LEFT,
+    (State.IDLE_LEFT, 'J'): State.SHARINGAN_LEFT,
 
 
     (State.WALK_RIGHT, 'D'): State.WALK_RIGHT,
@@ -74,9 +74,9 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.WALK_RIGHT, 'S'): State.CROUCH,
     (State.WALK_RIGHT, 'SPACE'): State.JUMP,
     (State.WALK_RIGHT, None): State.IDLE,
-    (State.WALK_RIGHT, 'Q'): State.ATTACK,
+    (State.WALK_RIGHT, 'H'): State.ATTACK,
     (State.WALK_RIGHT, 'R+T'): State.WALK_RIGHT,
-    (State.WALK_RIGHT, 'W'): State.ATTACK_UP,
+    (State.WALK_RIGHT, 'U'): State.ATTACK_UP,
 
     (State.WALK_LEFT,  'A'): State.WALK_LEFT,
     (State.WALK_LEFT,  'D'): State.WALK_RIGHT,
@@ -84,9 +84,9 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.WALK_LEFT,  'S'): State.CROUCH_LEFT,
     (State.WALK_LEFT,  'SPACE'): State.JUMP_LEFT,
     (State.WALK_LEFT,  None): State.IDLE_LEFT,
-    (State.WALK_LEFT, 'Q'): State.ATTACK_LEFT,
+    (State.WALK_LEFT, 'H'): State.ATTACK_LEFT,
     (State.WALK_LEFT, 'R+T'): State.WALK_LEFT,
-    (State.WALK_LEFT, 'W'): State.ATTACK_UP_LEFT,
+    (State.WALK_LEFT, 'U'): State.ATTACK_UP_LEFT,
 
     (State.RUN_RIGHT,  'SHIFT+D'): State.RUN_RIGHT,
     (State.RUN_RIGHT,  'SHIFT+A'): State.RUN_LEFT,
@@ -95,9 +95,9 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.RUN_RIGHT,  'S'): State.CROUCH,
     (State.RUN_RIGHT,  'SPACE'): State.JUMP,
     (State.RUN_RIGHT,  None): State.IDLE,
-    (State.RUN_RIGHT, 'Q'): State.ATTACK_RUN,
+    (State.RUN_RIGHT, 'H'): State.ATTACK_RUN,
     (State.RUN_RIGHT, 'R+T'): State.RUN_RIGHT,
-    (State.RUN_RIGHT, 'W'): State.ATTACK_UP,
+    (State.RUN_RIGHT, 'U'): State.ATTACK_UP,
 
 
     (State.RUN_LEFT,   'SHIFT+A'): State.RUN_LEFT,
@@ -107,9 +107,9 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.RUN_LEFT,   'S'): State.CROUCH_LEFT,
     (State.RUN_LEFT,   'SPACE'): State.JUMP_LEFT,
     (State.RUN_LEFT,   None): State.IDLE_LEFT,
-    (State.RUN_LEFT, 'Q'): State.ATTACK_RUN_LEFT,
+    (State.RUN_LEFT, 'H'): State.ATTACK_RUN_LEFT,
     (State.RUN_LEFT, 'R+T'): State.RUN_LEFT,
-    (State.RUN_LEFT, 'W'): State.ATTACK_UP_LEFT,
+    (State.RUN_LEFT, 'U'): State.ATTACK_UP_LEFT,
 
 
 
@@ -123,8 +123,8 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.CROUCH,     'SPACE'): State.JUMP,
     (State.CROUCH,     None): State.IDLE,
     (State.CROUCH,     'R+T'): State.CROUCH,
-    (State.CROUCH,     'Q'): State.ATTACK_CROUCH,
-    (State.CROUCH, 'W'): State.ATTACK_UP,
+    (State.CROUCH,     'H'): State.ATTACK_CROUCH,
+    (State.CROUCH, 'U'): State.ATTACK_UP,
 
     (State.CROUCH_LEFT,'S'): State.CROUCH_LEFT,
     (State.CROUCH_LEFT,'S+A'): State.CROUCH_WALK_LEFT,
@@ -132,8 +132,8 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.CROUCH_LEFT,'SPACE'): State.JUMP_LEFT,
     (State.CROUCH_LEFT, None): State.IDLE_LEFT,
     (State.CROUCH_LEFT, 'R+T'): State.CROUCH_LEFT,
-    (State.CROUCH_LEFT,'Q'): State.ATTACK_CROUCH_LEFT,
-    (State.CROUCH_LEFT, 'W'): State.ATTACK_UP_LEFT,
+    (State.CROUCH_LEFT,'H'): State.ATTACK_CROUCH_LEFT,
+    (State.CROUCH_LEFT, 'U'): State.ATTACK_UP_LEFT,
 
     (State.CROUCH_WALK,'S+D'): State.CROUCH_WALK,
     (State.CROUCH_WALK,'S+A'): State.CROUCH_WALK_LEFT,
@@ -141,8 +141,8 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.CROUCH_WALK,'SPACE'): State.JUMP,
     (State.CROUCH_WALK, None): State.CROUCH,
     (State.CROUCH_WALK, 'R+T'): State.CROUCH_WALK,
-    (State.CROUCH_WALK, 'Q'): State.ATTACK_CROUCH,
-    (State.CROUCH_WALK, 'W'): State.ATTACK_UP,
+    (State.CROUCH_WALK, 'H'): State.ATTACK_CROUCH,
+    (State.CROUCH_WALK, 'U'): State.ATTACK_UP,
 
     (State.CROUCH_WALK_LEFT,'S+A'): State.CROUCH_WALK_LEFT,
     (State.CROUCH_WALK_LEFT,'S+D'): State.CROUCH_WALK,
@@ -150,8 +150,8 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.CROUCH_WALK_LEFT,'SPACE'): State.JUMP_LEFT,
     (State.CROUCH_WALK_LEFT, None): State.CROUCH_LEFT,
     (State.CROUCH_WALK_LEFT, 'R+T'): State.CROUCH_WALK_LEFT,
-    (State.CROUCH_WALK_LEFT, 'Q'): State.ATTACK_CROUCH_LEFT,
-    (State.CROUCH_WALK_LEFT, 'W'): State.ATTACK_UP_LEFT,
+    (State.CROUCH_WALK_LEFT, 'H'): State.ATTACK_CROUCH_LEFT,
+    (State.CROUCH_WALK_LEFT, 'U'): State.ATTACK_UP_LEFT,
 
     # Jump and Raikiri preserve
     (State.JUMP, None): State.JUMP,
@@ -177,6 +177,8 @@ transitions: dict[tuple[State, Symbol], State] = {
 
 def init_pygame(width=1500, height=800):
     pygame.init()
+    pygame.mixer.init()
+
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("AFD - Animação Personagem")
     clock = pygame.time.Clock()
@@ -259,6 +261,16 @@ def main():
     screen, clock = init_pygame()
     background = pygame.image.load(os.path.join(base, 'Mapa', 'mapa4.jpg')).convert()
     background = pygame.transform.scale(background, screen.get_size())
+    orig_background = background
+    mapa3 = pygame.image.load(os.path.join(base, 'Mapa', 'mapa3.jpg')).convert()
+    mapa3 = pygame.transform.scale(mapa3, screen.get_size())
+
+    sound_sharingan = pygame.mixer.Sound(os.path.join(base, 'Sons', 'sharingan.mp3'))
+    sound_raikiri = pygame.mixer.Sound(os.path.join(base, 'Sons', 'raikiri.mp3'))
+
+    sound_sharingan.set_volume(0.5)
+    sound_raikiri.set_volume(0.5)
+
     scale = 4.0
     frames = {
         State.IDLE: load_frames(stand_folder, 'stand', 6, scale),
@@ -283,7 +295,7 @@ def main():
         State.ATTACK_RUN_LEFT: load_frames(attack_run_l_folder, 'attack(run)', 6, scale),
         State.ATTACK_UP: load_frames(attack_up_folder, 'attack(up)', 5, scale),
         State.ATTACK_UP_LEFT: load_frames(attack_up_l_folder, 'attack(up)', 5, scale),
-        State.SHARINGAN: load_frames(os.path.join(base, 'Sprite', 'sharingan'), 'sharingan', 21, scale),
+        State.SHARINGAN: load_frames(os.path.join(base, 'Sprite', 'sharingan'), 'sharingan', 19, scale),
         State.SHARINGAN_LEFT: load_frames(os.path.join(base, 'Sprite', 'sharingan', 'espelhadas'), 'sharingan', 21,scale),
 
     }
@@ -296,9 +308,17 @@ def main():
     jump_timer = 0
     running = True
 
+    sharingan_triggered = False  # já disparamos a troca?
+    sharingan_start = 0  # hora em que trocamos o mapa
+    raikiri_start = 0
+    drucao_mapa3_ms = 20000  # 20 000 ms = 20 segundos (ajuste para 15000 se quiser 15 s)
+    raikiri_anim_rate_fast = max(1, frame_rates['sharingan'] // 2)  # animação 2× mais rápida
+    raikiri_move_speed_slow = 25  # pixels por tick (menor que 8)
+
     while running:
         pygame.event.pump()
         keys = pygame.key.get_pressed()
+
 
         # Determina símbolo de entrada
         entrada = None
@@ -312,16 +332,12 @@ def main():
         ):
             if keys[pygame.K_SPACE]:
                 entrada, jump_timer = 'SPACE', jump_duration
-            elif keys[pygame.K_w]:
-                entrada = 'W'
-            elif keys[pygame.K_o]:
-                entrada = 'O'
-            elif keys[pygame.K_q]:
-                entrada = 'Q'
-            elif shift and keys[pygame.K_d] and keys[pygame.K_q]:
-                entrada = 'Q'
-            elif shift and keys[pygame.K_a] and keys[pygame.K_q]:
-                entrada = 'Q'
+            elif keys[pygame.K_u]:
+                entrada = 'U'
+            elif keys[pygame.K_j] and not sharingan_triggered:
+                entrada = 'J'
+            elif keys[pygame.K_h]:
+                entrada = 'H'
             elif keys[pygame.K_r] and keys[pygame.K_t]:
                 entrada = 'R+T'
             elif keys[pygame.K_s] and keys[pygame.K_a]:
@@ -356,7 +372,7 @@ def main():
             frame_rates['sharingan'] if state in (State.SHARINGAN, State.SHARINGAN_LEFT) else
             frame_rates['default']
         )
-        if tick % rate == 0:
+        if tick % rate == 0 and state not in (State.RAIKIRI, State.RAIKIRI_LEFT):
             if state in (State.ATTACK_RUN, State.ATTACK_RUN_LEFT):
                 if frame_index + 1 < len(frames[state]):
                     frame_index += 1
@@ -383,8 +399,17 @@ def main():
                     frame_index = 0
                     tick = 0
             elif state in (State.SHARINGAN, State.SHARINGAN_LEFT):
-                if tick % rate == 0:
+                # se estiver nos quadros 19,20 ou 21, aplica o SLOW_FACTOR
+                if frame_index in (18,19):
+
+                    current_rate = frame_rates['sharingan'] * 50
+
+                else:
+                    current_rate = frame_rates['sharingan']
+
+                if tick % current_rate == 0:
                     frame_index += 1
+                    # quando acabar a animação, volta a idle
                     if frame_index >= len(frames[state]):
                         state = State.IDLE if state == State.SHARINGAN else State.IDLE_LEFT
                         frame_index = tick = 0
@@ -434,22 +459,35 @@ def main():
             else:
                 state = State.IDLE if state == State.JUMP else State.IDLE_LEFT
                 frame_index = tick = 0
-        # Raikiri: frames 0–10 parado, 11–25 anda
         elif state in (State.RAIKIRI, State.RAIKIRI_LEFT):
-            if tick % rate == 0:
-                frame_index += 1
-                if frame_index >= len(frames[state]):
-                    # Final da animação
-                    state = State.IDLE if state == State.RAIKIRI else State.IDLE_LEFT
-                    frame_index = 0
-                    tick = 0
+            # 1) marca início e toca som apenas uma vez
+            if frame_index == 0 and raikiri_start == 0:
+                raikiri_start = pygame.time.get_ticks()
+                sound_raikiri.play()
 
-            if frame_index >= 11:  # move nos frames finais
-                raikiri_speed = 3 * walk_speed  # 3x mais rápido que o normal
+            now = pygame.time.get_ticks()
+            elapsed = now - raikiri_start
+
+            # 2) primeiros 11 frames em 3 segundos
+            if frame_index < 11:
+                frame_index = min(int((elapsed / 3000) * 11), 11)
+
+                # animação rápida depois do 11
+            elif tick % raikiri_anim_rate_fast == 0:
+                frame_index += 1
+
+                # movimento reduzido (mas animação mais rápida) a partir do 11
+            if frame_index >= 11:
                 if state == State.RAIKIRI:
-                    x_pos += raikiri_speed
+                    x_pos += raikiri_move_speed_slow
                 else:
-                    x_pos -= raikiri_speed
+                    x_pos -= raikiri_move_speed_slow
+
+                # final da animação…
+            if frame_index >= len(frames[state]):
+                state = State.IDLE if state == State.RAIKIRI else State.IDLE_LEFT
+                frame_index = tick = 0
+                raikiri_start = 0
         else:
             # Movimento no chão
             if state == State.WALK_RIGHT:
@@ -468,11 +506,45 @@ def main():
         # Manter dentro da tela
         x_pos = max(0, min(x_pos, screen.get_width()))
 
+        # —————— lógica de troca de mapa no Sharingan ——————
+        # se estou em SHARINGAN e atingi o frame 19 e ainda não troquei
+        if state in (State.SHARINGAN, State.SHARINGAN_LEFT) and frame_index == 18 and not sharingan_triggered:
+            sharingan_triggered = True
+            sound_sharingan.play()
+            sharingan_start = pygame.time.get_ticks()
+
+
+        # enquanto durar o periodo, mantenho mapa3
+        if sharingan_triggered:
+            if pygame.time.get_ticks() - sharingan_start <= drucao_mapa3_ms:
+                current_background = mapa3
+            else:
+                # volta ao original após expirar
+                current_background = orig_background
+                sharingan_triggered = False
+        else:
+            # se não estiver numa sessão de Sharingan ativa, garanto o fundo normal
+            current_background = orig_background
+
         # Desenho final
-        screen.blit(background, (0, 0))
-        surf = frames[state][frame_index]
-        rect = surf.get_rect(midbottom=(x_pos, y_pos + jump_offset))
-        screen.blit(surf, rect)
+        screen.blit(current_background, (0, 0))
+
+        if state in (State.SHARINGAN, State.SHARINGAN_LEFT):
+            last_index = len(frames[state]) - 1
+            # se for o último frame, escala para tela cheia
+            if frame_index == last_index:
+                full = pygame.transform.scale(frames[state][frame_index],
+                                              screen.get_size())
+                screen.blit(full, (0, 0))
+            else:
+                surf = frames[state][frame_index]
+                rect = surf.get_rect(midbottom=(x_pos, y_pos + jump_offset))
+                screen.blit(surf, rect)
+        else:
+            surf = frames[state][frame_index]
+            rect = surf.get_rect(midbottom=(x_pos, y_pos + jump_offset))
+            screen.blit(surf, rect)
+
         pygame.display.flip()
 
         tick += 1
