@@ -32,6 +32,8 @@ class State(Enum):
     SHARINGAN_LEFT = auto()
     WIN = auto()
     WIN_LEFT = auto()
+    NINDOG_RIGHT = auto()
+    NINDOG_LEFT = auto()
 
 
 # Símbolos de entrada (None equivale a nenhuma tecla)
@@ -54,6 +56,8 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.IDLE,    'U'): State.ATTACK_UP,
     (State.IDLE,      'J'): State.SHARINGAN,
     (State.IDLE,      'P'): State.WIN,
+    (State.IDLE,      'M'): State.NINDOG_RIGHT,
+
 
 
 
@@ -72,6 +76,7 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.IDLE_LEFT, 'U'): State.ATTACK_UP_LEFT,
     (State.IDLE_LEFT, 'J'): State.SHARINGAN_LEFT,
     (State.IDLE_LEFT, 'P'): State.WIN_LEFT,
+    (State.IDLE_LEFT, 'M'): State.NINDOG_LEFT,
 
 
     (State.WALK_RIGHT, 'D'): State.WALK_RIGHT,
@@ -181,7 +186,8 @@ transitions: dict[tuple[State, Symbol], State] = {
     (State.SHARINGAN_LEFT, None): State.SHARINGAN_LEFT,
     (State.WIN, None): State.WIN,
     (State.WIN_LEFT, None): State.WIN_LEFT,
-
+    (State.NINDOG_RIGHT, None): State.NINDOG_RIGHT,
+    (State.NINDOG_LEFT, None): State.NINDOG_LEFT,
 }
 
 def init_pygame(width=1500, height=800):
@@ -249,6 +255,8 @@ sharingan_r_folder = os.path.join(base, 'Sprite', 'sharingan')
 sharingan_l_folder = os.path.join(sharingan_r_folder, 'espelhadas')
 win_r_folder = os.path.join(base, 'Sprite', 'win')
 win_l_folder = os.path.join(win_r_folder, 'espelhadas')
+nindog_r_folder = os.path.join(base,'Sprite', 'ninDogs')
+nindog_l_folder = os.path.join(nindog_r_folder,'espelhadas')
 
 
 
@@ -309,7 +317,9 @@ def main():
         State.SHARINGAN: load_frames(sharingan_r_folder,'sharingan', 21, scale),
         State.SHARINGAN_LEFT: load_frames(sharingan_l_folder, 'sharingan', 21,scale),
         State.WIN: load_frames(win_r_folder, 'win', 11, scale),
-        State.WIN_LEFT: load_frames(win_l_folder, 'win', 11, scale)
+        State.WIN_LEFT: load_frames(win_l_folder, 'win', 11, scale),
+        State.NINDOG_RIGHT: load_frames(nindog_r_folder, 'ninDogs', 25, scale),
+        State.NINDOG_LEFT: load_frames(nindog_l_folder, 'ninDogs', 25, scale),
     }
 
     state = State.IDLE
@@ -328,6 +338,7 @@ def main():
     drucao_mapa3_ms = 20000  # 20 000 ms = 20 segundos (ajuste para 15000 se quiser 15 s)
     raikiri_anim_rate_fast = max(1, frame_rates['sharingan'] // 2)  # animação 2× mais rápida
     raikiri_move_speed_slow = 25  # pixels por tick (menor que 8)
+
 
     while running:
         pygame.event.pump()
@@ -350,6 +361,8 @@ def main():
                 entrada = 'P'
             elif keys[pygame.K_u]:
                 entrada = 'U'
+            elif keys[pygame.K_m]:
+                entrada = 'M'
             elif keys[pygame.K_j] and not sharingan_triggered:
                 entrada = 'J'
             elif keys[pygame.K_h]:
@@ -404,6 +417,16 @@ def main():
                 else:
                     state = State.IDLE if state == State.ATTACK_UP else State.IDLE_LEFT
                     frame_index, tick = 0, 0
+            elif state in (State.NINDOG_RIGHT, State.NINDOG_LEFT):
+                total = len(frames[state])  # 25
+                # avança um frame a cada tick compatível com a sua taxa default:
+                if tick % frame_rates['sharingan'] == 0:
+                    frame_index += 1
+                # quando passar do último, volta ao idle correspondente
+                if frame_index >= total:
+                    state = State.IDLE if state == State.NINDOG_RIGHT else State.IDLE_LEFT
+                    frame_index = 0
+                    tick = 0
             elif state in (State.CROUCH, State.CROUCH_LEFT):
                 frame_index = min(frame_index + 1, len(frames[state]) - 1)
             elif state in (State.ATTACK, State.ATTACK_LEFT):
