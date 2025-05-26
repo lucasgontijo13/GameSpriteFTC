@@ -346,4 +346,3 @@ Aqui está uma tabela detalhada das ações que cada tecla ou combinação de te
 
 ---
 
-Espero que este README seja útil! Se tiver mais perguntas ou precisar de alguma alteração, é só me dizer.
