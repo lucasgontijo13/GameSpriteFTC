@@ -2,15 +2,6 @@
 
 Este projeto demonstra a implementação de um Autômato Finito Determinístico (AFD) para controlar as animações e o estado de um personagem em Pygame. O personagem pode andar, correr, agachar, pular, e executar diversas ações como ataques e habilidades especiais, todas controladas por transições de estado bem definidas.
 
----
-## Sumário
-
-  * [Requisitos](https://www.google.com/search?q=%23requisitos)
-  * [Estrutura de Pastas](https://www.google.com/search?q=%23estrutura-de-pastas)
-  * [Como Rodar](https://www.google.com/search?q=%23como-rodar)
-  * [Descrição do Código](https://www.google.com/search?q=%23descri%C3%A7%C3%A3o-do-c%C3%B3digo)
-  * [Controles do Jogo](https://www.google.com/search?q=%23controles-do-jogo)
-
 -----
 ## Requisitos
 
